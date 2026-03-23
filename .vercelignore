@@ -1,0 +1,20 @@
+package.json
+package-lock.json
+server.js
+db-init.js
+node_modules
+salon.db
+uploads
+.env
+data
+frontend
+petleen
+salon petleen
+salon_de_petleen
+dummy.txt
+backend
+venv
+.cache
+.npm
+.config
+.package-lock.json
