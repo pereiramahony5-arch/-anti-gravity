@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "redirects": [
+  "public": true,
+  "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "https://anti-gravity-0htf.onrender.com/api/$1"
     }
-  ]
+  ],
+  "cleanUrls": true
 }
