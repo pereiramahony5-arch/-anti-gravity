@@ -317,9 +317,9 @@
     <script>
         // Slots Data Management
         let slots = [];
-        const API_BASE_SLOTS = window.location.origin === 'null' || window.location.protocol === 'file:'
-            ? 'http://localhost:3000'
-            : '';
+            const API_BASE = window.location.origin.includes('localhost')
+                ? 'http://localhost:3000'
+                : 'https://anti-gravity-0htf.onrender.com';
 
         async function loadSlots() {
             try {
