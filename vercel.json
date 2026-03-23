@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://anti-gravity-0htf.onrender.com/api/$1"
+    }
+  ]
+}
