@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment | Salon de PET-LEEN</title>
+    <meta name="description"
+        content="Book your premium beauty appointment at Salon de PET-LEEN in Margao, Goa. Select your services, date, and time.">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700;900&family=Pinyon+Script&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .booking-section {
+            padding: 150px 5% 100px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .booking-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        /* Ensure options are visible even if browser defaults to light theme */
+        .form-group select option {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        .form-group select optgroup {
+            background-color: #000;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .booking-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .booking-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Multi-service tags */
+        .selected-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .service-tag {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .service-tag i {
+            cursor: pointer;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+
+        .service-tag i:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .no-services {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav id="navbar" class="scrolled">
+        <a href="index.html" class="logo">
+            <span class="logo-top" style="font-size: 0.8rem;">Salon de</span>
+            <span class="logo-main" style="font-size: 1.5rem;">PET-LEEN</span>
+            <span class="logo-bottom" style="font-size: 0.6rem;">Since 1995</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html#home">Home</a>
+            <a href="index.html#services">Services</a>
+            <a href="index.html#about">About</a>
+            <a href="career.html">Career</a>
+            <a href="index.html#contact">Contact</a>
+        </div>
+        <a href="index.html" class="btn-premium">Back to Home</a>
+    </nav>
+
+    <section class="booking-section">
+        <div class="booking-header animate-in">
+            <h1>Reserve Your Glow</h1>
+            <p>Select your preferred services and schedule your luxury experience.</p>
+        </div>
+
+        <div class="booking-container glass animate-in" style="animation-delay: 0.2s;">
+            <div style="margin-bottom: 30px;">
+                <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary);">Today's Availability</h3>
+                <table class="availability-table" id="slotsTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Remaining Slots</th>
+                        </tr>
+                    </thead>
+                    <tbody id="slotsBody">
+                        <!-- Dynamic Slots -->
+                    </tbody>
+                </table>
+                <div class="availability-status">
+                    <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+                        Showing real-time availability for the selected date.</p>
+                </div>
+            </div>
+
+            <form id="appointmentForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+91 00000 00000" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label for="service">Select Service</label>
+                    <select id="service-select">
+                        <option value="" disabled selected>Add a service...</option>
+                        <optgroup label="Bridal Packages">
+                            <option value="Package 1: Bride Only (₹10,000)">Package 1: Bride Only (₹10,000)</option>
+                            <option value="Package 2: Bride + 3 (₹18,000)">Package 2: Bride + 3 (₹18,000)</option>
+                            <option value="Package 3: Grand Group (₹23,000)">Package 3: Grand Group (₹23,000)</option>
+                            <option value="10-Step Pre-Bridal Ritual">10-Step Pre-Bridal Ritual</option>
+                        </optgroup>
+                        <optgroup label="Wedding Party & Extras">
+                            <option value="Bridesmaid (₹2,500)">Bridesmaid (₹2,500)</option>
+                            <option value="Mother of Bride (₹3,000)">Mother of Bride (₹3,000)</option>
+                            <option value="Party Makeup (₹1,500)">Party Makeup (₹1,500)</option>
+                            <option value="Party Hairstyle (₹1,000)">Party Hairstyle (₹1,000)</option>
+                            <option value="Extras: Makeup Only (₹1,500)">Extras: Makeup Only (₹1,500)</option>
+                            <option value="Extras: MU + Hairstyle (₹2,500)">Extras: MU + Hairstyle (₹2,500)</option>
+                        </optgroup>
+                        <optgroup label="Advanced Skin Therapy">
+                            <option value="Hydravital / Puraviatatal (₹900)">Hydravital / Puraviatatal (₹900)</option>
+                            <option value="Bridal Specialty Facial (₹2,000)">Bridal Specialty Facial (₹2,000)</option>
+                            <option value="Brand Treatment Facial (₹1,500)">Brand Treatment Facial (₹1,500)</option>
+                            <option value="Clean-Up (₹400)">Clean-Up (₹400)</option>
+                            <option value="Mini Facial (₹600)">Mini Facial (₹600)</option>
+                        </optgroup>
+                        <optgroup label="Chemical & Texture">
+                            <option value="Hair Straightening">Straightening (Depends on hair length)</option>
+                            <option value="Hair Smoothing">Smoothing (Depends on hair length)</option>
+                            <option value="Keratin Treatment">Keratin (Depends on hair length)</option>
+                            <option value="Hair Rebonding">Rebonding (Depends on hair length)</option>
+                        </optgroup>
+                        <optgroup label="Hair & Scalp Spa">
+                            <option value="Hair Spa (Hydrating/Enriching)">Hair Spa (Hydrating/Enriching)</option>
+                            <option value="Scalp Therapy (Dandruff/Soothing)">Scalp Therapy (Dandruff/Soothing)</option>
+                            <option value="Metal DX Specialty Spa">Metal DX Specialty Spa</option>
+                        </optgroup>
+                        <optgroup label="Color & Styling">
+                            <option value="Global hair color">Global hair color (Depends on hair length)</option>
+                            <option value="Highlights / Low-lights">Highlights / Low-lights</option>
+                            <option value="Iron/Crimp/Tong">Ironing / Crimping / Tonging</option>
+                            <option value="Wash & Blow Dry">Hair Wash & Blow Dry</option>
+                        </optgroup>
+                        <optgroup label="Luxury Hands & Feet">
+                            <option value="Crystal Spa (Mani/Pedi)">Crystal Spa (Mani/Pedi)</option>
+                            <option value="Ice-Cream Ritual (Mani/Pedi)">Ice-Cream Ritual (Mani/Pedi)</option>
+                            <option value="Coffee Ritual (Mani/Pedi)">Coffee Ritual (Mani/Pedi)</option>
+                            <option value="Basic / Spa (Mani/Pedi)">Basic / Spa (Mani/Pedi)</option>
+                        </optgroup>
+                        <optgroup label="Nail Artistry">
+                            <option value="Regular Polish (₹100)">Regular Polish (₹100)</option>
+                            <option value="Cut and File (₹70)">Cut and File (₹70)</option>
+                            <option value="French Tips (₹100)">French Tips (₹100)</option>
+                        </optgroup>
+                        <optgroup label="Massages & Wellness">
+                            <option value="Full Body Massage (90m)">Full Body Massage (90m + Steam)</option>
+                            <option value="Zone Massage (Head/Back/etc)">Zone Massage (Head/Back/Foot/etc.)</option>
+                            <option value="D-Tan / Bleach Treatment">D-Tan / Bleach Treatment</option>
+                        </optgroup>
+                        <optgroup label="Threading & Waxing">
+                            <option value="Full Face Threading (₹160)">Full Face Threading (₹160)</option>
+                            <option value="Brazilian Waxing">Brazilian Waxing</option>
+                            <option value="Honey Waxing">Honey Waxing</option>
+                            <option value="Liposoluble Waxing">Liposoluble Waxing</option>
+                        </optgroup>
+                        <option value="Other Consultation">Other Inquiry / Consultation</option>
+                    </select>
+                    <div id="selected-services" class="selected-services">
+                        <span class="no-services">No services selected yet</span>
+                    </div>
+                    <input type="hidden" id="final-services" name="services" required>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="date">Preferred Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Preferred Time</label>
+                        <select id="time" name="time" required>
+                            <option value="" disabled selected>Select a time...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Special Instructions (Optional)</label>
+                    <textarea id="message" name="message" rows="4"
+                        placeholder="Any specific requirements..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-premium" style="width: 100%; margin-top: 20px;">Confirm
+                    Request</button>
+            </form>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <a href="admin.html" class="logo" style="margin-bottom: 20px;">
+                <span class="logo-top">Salon de</span>
+                <span class="logo-main">PET-LEEN</span>
+                <span class="logo-bottom">Since 1995</span>
+            </a>
+            <p>Aquem - Baixo, Margao, Goa 403601 | +91 8378905114</p>
+            <div class="socials">
+                <a href="https://instagram.com/salondepetleen" target="_blank" title="Follow us on Instagram"><i
+                        class="fab fa-instagram"></i></a>
+                <a href="https://facebook.com/salondepetleen" target="_blank" title="Like us on Facebook"><i
+                        class="fab fa-facebook"></i></a>
+                <a href="https://wa.me/918378905114" target="_blank" title="Chat on WhatsApp"><i
+                        class="fab fa-whatsapp"></i></a>
+            </div>
+            <p style="font-size: 0.8rem; margin-top: 20px; color: var(--text-muted);">&copy; 2026 Salon de PET-LEEN. All
+                rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Slots Data Management
+        let slots = [];
+        const API_BASE_SLOTS = window.location.origin === 'null' || window.location.protocol === 'file:'
+            ? 'http://localhost:3000'
+            : '';
+
+        async function loadSlots() {
+            try {
+                const response = await fetch(`${API_BASE_SLOTS}/api/slots`);
+                slots = await response.json();
+                renderSlots();
+            } catch (e) {
+                console.error("Error loading slots:", e);
+            }
+        }
+
+
+
+        function isTimePassed(slotTime) {
+            const dateInput = document.getElementById('date');
+            if (!dateInput || !dateInput.value) return false;
+
+            const selectedDate = dateInput.value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (selectedDate > today) return false;
+
+            // Handle time conversion
+            const [time, modifier] = slotTime.split(' ');
+            let [hours, minutes] = time.split(':');
+
+            hours = parseInt(hours);
+            if (modifier === 'PM' && hours < 12) hours += 12;
+            if (modifier === 'AM' && hours === 12) hours = 0;
+
+            const now = new Date();
+            if (hours < now.getHours()) return true;
+            if (hours === now.getHours() && parseInt(minutes) <= now.getMinutes()) return true;
+
+            return false;
+        }
+
+        function renderSlots() {
+            const body = document.getElementById('slotsBody');
+            const timeSelect = document.getElementById('time');
+            if (!body) return;
+
+            body.innerHTML = '';
+            if (timeSelect) {
+                timeSelect.innerHTML = '<option value="" disabled selected>Select a time...</option>';
+            }
+
+            slots.forEach((slot) => {
+                const expired = isTimePassed(slot.time);
+                const isBusy = slot.status.toLowerCase() === 'busy';
+                const currentStatus = expired ? "Closed" : slot.status;
+
+                // Add to time dropdown if valid
+                if (timeSelect && !expired && !isBusy) {
+                    timeSelect.innerHTML += `<option value="${slot.time}">${slot.time}</option>`;
+                }
+
+                const badgeClass = expired ? 'status-closed' :
+                    (slot.status.toLowerCase() === 'available' ? 'status-available' :
+                        slot.status.toLowerCase() === 'busy' ? 'status-busy' : 'status-limited');
+
+                body.innerHTML += `
+                    <tr class="${expired ? 'expired' : ''}">
+                        <td>${slot.time}</td>
+                        <td><span class="status-badge ${badgeClass}">${currentStatus}</span></td>
+                        <td>${expired ? 'Time Passed' : slot.count + ' slots left'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+
+
+        const serviceSelect = document.getElementById('service-select');
+        const selectedContainer = document.getElementById('selected-services');
+        const finalInput = document.getElementById('final-services');
+        let selectedServices = [];
+
+        serviceSelect.addEventListener('change', () => {
+            const val = serviceSelect.value;
+            if (val && !selectedServices.includes(val)) {
+                selectedServices.push(val);
+                updateTags();
+            }
+            serviceSelect.value = ""; // Reset dropdown
+        });
+
+        function updateTags() {
+            if (selectedServices.length === 0) {
+                selectedContainer.innerHTML = '<span class="no-services">No services selected yet</span>';
+                finalInput.value = "";
+            } else {
+                selectedContainer.innerHTML = selectedServices.map((s, i) => `
+                    <div class="service-tag">
+                        ${s}
+                        <i class="fas fa-times btn-remove-service" data-index="${i}"></i>
+                    </div>
+                `).join('');
+                finalInput.value = selectedServices.join(', ');
+            }
+        }
+
+        selectedContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-remove-service')) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                selectedServices.splice(index, 1);
+                updateTags();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSlots();
+
+            // Prevent past dates and update table on change
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', today);
+                dateInput.value = today; // Default to today
+
+                dateInput.addEventListener('change', renderSlots);
+            }
+        });
+
+        document.getElementById('appointmentForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (selectedServices.length === 0) {
+                alert("Please select at least one service.");
+                return;
+            }
+
+            const formData = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                services: selectedServices.join(', '),
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                message: document.getElementById('message').value
+            };
+
+            const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
+                ? 'http://localhost:3000'
+                : '';
+
+            console.log("Attempting to send booking to:", `${API_BASE}/api/book`);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    sessionStorage.setItem('lastBooking', JSON.stringify({ ...formData, id: result.id }));
+                    window.location.href = 'confirmation.html';
+                } else {
+                    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+                    if (errorData.errors) {
+                        const msg = errorData.errors.map(e => `${e.path}: ${e.msg}`).join('\n');
+                        alert('Validation Error:\n' + msg);
+                    } else {
+                        alert('Booking Failed: ' + (errorData.error || 'Server error'));
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                alert("COULD NOT CONNECT TO SERVER.\n\nDetails: " + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

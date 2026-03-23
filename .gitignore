@@ -1,0 +1,10 @@
+node_modules
+.env
+salon.db
+salon.db-journal
+*.log
+uploads/
+.DS_Store
+Thumbs.db
+dist/
+build/

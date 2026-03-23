@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Appointment | Salon de PET-LEEN</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%);
+            padding: 40px 20px;
+        }
+
+        .cancel-wrapper {
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2.2rem;
+        }
+
+        .icon-warning {
+            background: rgba(255, 165, 0, 0.15);
+            border: 2px solid rgba(255, 165, 0, 0.4);
+            color: #ffa500;
+        }
+
+        .icon-success {
+            background: rgba(0, 200, 0, 0.1);
+            border: 2px solid rgba(0, 200, 0, 0.3);
+            color: #00cc00;
+        }
+
+        .icon-error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            color: #ff4444;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        .booking-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .card-row {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-row:last-child {
+            border-bottom: none;
+        }
+
+        .card-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(139, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .card-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .card-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: rgba(255, 165, 0, 0.06);
+            border: 1px solid rgba(255, 165, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #ffa500;
+            text-align: left;
+        }
+
+        .warning-box i {
+            margin-right: 8px;
+        }
+
+        .btn-cancel-confirm {
+            background: linear-gradient(135deg, #8b0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .btn-cancel-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.4);
+        }
+
+        .btn-keep {
+            display: block;
+            padding: 13px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            color: var(--text-muted);
+            background: transparent;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-keep:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        #loading,
+        #main-content,
+        #success-state,
+        #error-state {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cancel-wrapper">
+
+        <!-- Loading -->
+        <div id="loading">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <p style="color: var(--text-muted);">Loading your booking...</p>
+        </div>
+
+        <!-- Main Cancel Confirmation UI -->
+        <div id="main-content">
+            <div class="icon-circle icon-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1 class="page-title">Cancel Appointment?</h1>
+            <p class="page-subtitle">Please review your booking details before cancelling.</p>
+
+            <div class="booking-card">
+                <div class="card-row">
+                    <div class="card-icon"><i class="fas fa-user"></i></div>
+                    <div>
+                        <div class="card-label">Name</div>
+                        <div class="card-value" id="b-name">—</div>
+                    </div>
+                </div>
+                <div class="card-row">
+                    <div class="card-icon"><i class="fas fa-calendar"></i></div>
+                    <div>
+                        <div class="card-label">Date</div>
+                        <div class="card-value" id="b-date">—</div>
+                    </div>
+                </div>
+                <div class="card-row">
+                    <div class="card-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <div class="card-label">Time</div>
+                        <div class="card-value" id="b-time">—</div>
+                    </div>
+                </div>
+                <div class="card-row">
+                    <div class="card-icon"><i class="fas fa-scissors"></i></div>
+                    <div>
+                        <div class="card-label">Services</div>
+                        <div class="card-value" id="b-services">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <i class="fas fa-info-circle"></i>
+                Cancelled appointments cannot be automatically restored. You'll need to make a new booking if you change
+                your mind.
+            </div>
+
+            <button class="btn-cancel-confirm" id="btnCancelConfirm">
+                <i class="fas fa-times-circle"></i> Yes, Cancel My Appointment
+            </button>
+            <a href="booking.html" class="btn-keep">
+                <i class="fas fa-arrow-left"></i> No, Keep My Appointment
+            </a>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state">
+            <div class="icon-circle icon-success">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1 class="page-title" style="color: #00cc00;">Appointment Cancelled</h1>
+            <p class="page-subtitle">Your booking has been successfully cancelled.<br>We hope to see you again soon! 💇
+            </p>
+            <a href="booking.html" class="btn-premium" style="display: inline-block; margin-top: 10px;">
+                <i class="fas fa-calendar-plus"></i> Book a New Appointment
+            </a>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state">
+            <div class="icon-circle icon-error">
+                <i class="fas fa-times"></i>
+            </div>
+            <h1 class="page-title" style="font-size: 1.8rem;" id="error-title">Something went wrong</h1>
+            <p class="page-subtitle" id="error-msg">We couldn't process your cancellation.</p>
+            <a href="booking.html" class="btn-premium" style="display: inline-block; margin-top: 10px;">
+                <i class="fas fa-calendar-plus"></i> Return to Booking
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
+            ? 'http://localhost:3000'
+            : '';
+
+        // Get booking ID from URL e.g. cancel.html?id=1234567890
+        const params = new URLSearchParams(window.location.search);
+        const bookingId = params.get('id');
+
+        function show(id) {
+            ['loading', 'main-content', 'success-state', 'error-state'].forEach(s => {
+                document.getElementById(s).style.display = s === id ? 'block' : 'none';
+            });
+        }
+
+        async function loadBooking() {
+            if (!bookingId) {
+                document.getElementById('error-title').innerText = 'Invalid Link';
+                document.getElementById('error-msg').innerText = 'This cancellation link is missing a booking ID.';
+                show('error-state');
+                return;
+            }
+
+            show('loading');
+            try {
+                const res = await fetch(`${API_BASE}/api/booking/${bookingId}`);
+                if (!res.ok) throw new Error('not found');
+                const b = await res.json();
+
+                if (b.status === 'Cancelled') {
+                    document.getElementById('error-title').innerText = 'Already Cancelled';
+                    document.getElementById('error-msg').innerText = 'This appointment has already been cancelled.';
+                    show('error-state');
+                    return;
+                }
+
+                document.getElementById('b-name').innerText = b.name;
+                document.getElementById('b-time').innerText = b.time;
+                document.getElementById('b-services').innerText = b.services;
+
+                if (b.date) {
+                    const d = new Date(b.date + 'T00:00:00');
+                    document.getElementById('b-date').innerText = d.toLocaleDateString('en-US', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                }
+
+                show('main-content');
+            } catch (e) {
+                document.getElementById('error-title').innerText = 'Booking Not Found';
+                document.getElementById('error-msg').innerText = 'We couldn\'t find a booking with this link. It may have already been cancelled or removed.';
+                show('error-state');
+            }
+        }
+
+        async function confirmCancel() {
+            try {
+                const res = await fetch(`${API_BASE}/api/cancel/${bookingId}`, { method: 'PATCH' });
+                if (res.ok) {
+                    show('success-state');
+                } else {
+                    const data = await res.json();
+                    document.getElementById('error-title').innerText = 'Cancellation Failed';
+                    document.getElementById('error-msg').innerText = data.error || 'Please try again or contact us.';
+                    show('error-state');
+                }
+            } catch (e) {
+                document.getElementById('error-title').innerText = 'Server Unreachable';
+                document.getElementById('error-msg').innerText = 'Could not connect to the server. Please try again later.';
+                show('error-state');
+            }
+        }
+
+        document.getElementById('btnCancelConfirm')?.addEventListener('click', confirmCancel);
+
+        // Load on page open
+        loadBooking();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard | Salon de PET-LEEN</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body:not(.authenticated) .admin-section,
+        body:not(.authenticated) #navbar {
+            display: none;
+        }
+
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        body.authenticated .login-overlay {
+            display: none;
+        }
+
+        .login-box {
+            text-align: center;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .admin-section {
+            padding: 120px 5% 50px;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .booking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .booking-table th,
+        .booking-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .booking-table th {
+            background: var(--primary);
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .status-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(255, 165, 0, 0.1);
+            color: #ffa500;
+        }
+
+        .status-confirmed {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+        }
+
+        .status-cancelled {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Dark dropdown styling */
+        select {
+            background-color: #1a0000;
+            color: white;
+        }
+
+        select option {
+            background-color: #1a0000;
+            color: white;
+        }
+
+        #monthFilter {
+            background-color: #1a0000;
+            color: white;
+            border: 1px solid var(--primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        /* Calendar Styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding-bottom: 5px;
+        }
+
+        .calendar-day {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 100px;
+            border-radius: 8px;
+            padding: 10px;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+        }
+
+        .calendar-day.today {
+            border-color: var(--gold);
+            background: rgba(197, 168, 124, 0.05);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .calendar-day-num {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .booking-dots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-confirmed { background: #00ff00; }
+        .dot-pending { background: #ffa500; }
+
+        .view-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            padding: 4px;
+            margin-bottom: 20px;
+            width: fit-content;
+        }
+
+        .view-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        #calendarView { display: none; }
+        body.view-calendar #calendarView { display: block; }
+        body.view-calendar #listView { display: none; }
+    </style>
+</head>
+
+<body>
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box glass">
+            <i class="fas fa-user-shield" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h2 style="margin-bottom: 10px;">Owner Login</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">Enter credentials to manage
+                PET-LEEN requests</p>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label
+                    style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Username</label>
+                <input type="text" id="adminUsername" placeholder="Username"
+                    style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+            </div>
+            <div style="text-align: left; margin-bottom: 20px;">
+                <label
+                    style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Password</label>
+                <input type="password" id="adminPassword" placeholder="Password"
+                    style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+            </div>
+            <button class="btn-premium" id="loginBtn" style="width: 100%;">Access Dashboard</button>
+            <p id="loginError" style="color: #ff4d4d; font-size: 0.8rem; margin-top: 15px; display: none;">Invalid
+                credentials. Please try again.</p>
+        </div>
+    </div>
+    
+    <!-- Notification Toast -->
+    <div id="bookingToast" class="glass" style="position: fixed; top: 20px; right: 20px; padding: 20px; z-index: 10001; border-left: 5px solid var(--gold); display: none; transform: translateX(120%); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 300px;">
+        <div style="display: flex; align-items: flex-start; gap: 15px;">
+            <i class="fas fa-bell" style="color: var(--gold); font-size: 1.5rem; margin-top: 5px;"></i>
+            <div style="text-align: left;">
+                <h4 style="margin: 0; color: white;">New Booking!</h4>
+                <p id="toastMessage" style="margin: 5px 0 0; font-size: 0.85rem; color: var(--text-muted);"></p>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn-premium" style="padding: 5px 15px; font-size: 0.7rem;" onclick="hideToast()">View Bookings</button>
+                    <button class="btn-premium" style="padding: 5px 15px; font-size: 0.7rem; background: transparent; border-color: rgba(255,255,255,0.2);" onclick="document.getElementById('bookingToast').style.transform = 'translateX(120%)'; setTimeout(()=>document.getElementById('bookingToast').style.display='none', 500)">Dismiss</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav id="navbar" class="scrolled">
+        <a href="index.html" class="logo">
+            <span class="logo-top" style="font-size: 0.8rem;">Salon de</span>
+            <span class="logo-main" style="font-size: 1.5rem;">PET-LEEN</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">View Site</a>
+            <a href="career.html">Career</a>
+            <a href="#" id="logoutLink">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Manual Booking Modal -->
+    <div class="login-overlay" id="manualBookingOverlay" style="display: none; align-items: flex-start; padding-top: 5vh; z-index: 10000; overflow-y: auto;">
+        <div class="login-box glass" style="width: 100%; max-width: 500px; margin-bottom: 50px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.8rem; color: var(--gold);">Manual Booking</h2>
+                <button type="button" id="closeManualBooking" style="background: transparent; border: none; color: white; font-size: 2rem; cursor: pointer;">&times;</button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; text-align: left;">Reserve a confirmed slot for phone or walk-in customers.</p>
+            <form id="manualBookingForm">
+                <div style="text-align: left; margin-bottom: 15px;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Customer Name</label>
+                    <input type="text" id="mbName" placeholder="Full Name" required
+                        style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+                </div>
+                <div style="text-align: left; margin-bottom: 15px;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Phone Number</label>
+                    <input type="tel" id="mbPhone" placeholder="+91 00000 00000" required
+                        style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+                </div>
+                <div style="text-align: left; margin-bottom: 15px;">
+                    <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Services Requested</label>
+                    <input type="text" id="mbServices" placeholder="e.g. Haircut, Bridal Specialty Facial" required
+                        style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                    <div style="text-align: left;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Date</label>
+                        <input type="date" id="mbDate" required min=""
+                            style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+                    </div>
+                    <div style="text-align: left;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">Time Slot</label>
+                        <select id="mbTime" required
+                            style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid rgba(197, 168, 124, 0.5); border-radius: 8px; color: white;">
+                            <option value="" disabled selected>Loading slots...</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" id="mbSubmitBtn" class="btn-premium" style="width: 100%;">Confirm Manual Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <div class="dashboard-container">
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+                <div class="section-title" style="text-align: left; margin: 0;">
+                    <h2 style="font-size: 2.5rem;">Appointment Dashboard</h2>
+                    <p>Manage all incoming beauty requests from your website</p>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button class="btn-premium" id="btnOpenManualBooking" style="padding: 10px 20px; font-size: 0.8rem; border-radius: 8px;"><i class="fas fa-plus"></i> Manual Booking</button>
+                    <div class="view-switcher" style="margin-bottom: 0;">
+                        <button class="view-btn active" id="viewBtnBookingsList">Bookings</button>
+                        <button class="view-btn" id="viewBtnCalendar">Calendar</button>
+                        <button class="view-btn" id="viewBtnApplications">Applications</button>
+                        <button class="view-btn" id="viewBtnSlots">Manage Slots</button>
+                    </div>
+                    <div id="monthFilterContainer" style="display: flex; gap: 10px; align-items: center;">
+                        <label for="monthFilter" style="font-size: 0.8rem; color: var(--text-muted);">View Month:</label>
+                        <select id="monthFilter" class="edit-input" style="width: 160px; height: 35px; border-color: var(--primary);">
+                            <!-- Will be populated by JS -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View Container -->
+            <div id="calendarView" class="glass animate-in" style="padding: 25px; margin-bottom: 30px;">
+                <div class="calendar-grid" id="calendarGridHeader">
+                    <div class="calendar-day-header">Sun</div>
+                    <div class="calendar-day-header">Mon</div>
+                    <div class="calendar-day-header">Tue</div>
+                    <div class="calendar-day-header">Wed</div>
+                    <div class="calendar-day-header">Thu</div>
+                    <div class="calendar-day-header">Fri</div>
+                    <div class="calendar-day-header">Sat</div>
+                </div>
+                <div class="calendar-grid" id="calendarBody">
+                    <!-- Days injected here -->
+                </div>
+            </div>
+
+            <div id="listView">
+            <!-- Stats Bar -->
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="glass" style="padding: 20px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Total Requests</span>
+                    <h3 id="statTotal" style="font-size: 2rem; color: var(--primary); margin-top: 5px;">0</h3>
+                </div>
+                <div class="glass" style="padding: 20px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Confirmed This Month</span>
+                    <h3 id="statConfirmed" style="font-size: 2rem; color: #00ff00; margin-top: 5px;">0</h3>
+                </div>
+                <div class="glass" style="padding: 20px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Efficiency Rate</span>
+                    <h3 id="statRate" style="font-size: 2rem; color: var(--gold); margin-top: 5px;">0%</h3>
+                </div>
+            </div>
+
+            <div class="glass" style="padding: 20px; overflow-x: auto;">
+                <table class="booking-table" style="margin-top: 0;">
+                    <thead>
+                        <tr>
+                            <th>Appointment</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>Services</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsList">
+                        <!-- Bookings will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            </div> <!-- End List View -->
+            
+            <!-- Applications View -->
+            <div id="applicationsView" style="display: none;">
+                <div class="glass" style="padding: 20px; overflow-x: auto;">
+                    <table class="booking-table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Applicant</th>
+                                <th>Contact</th>
+                                <th>Position</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsList">
+                            <!-- Applications will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div> <!-- End Applications View -->
+            
+            <!-- Manage Slots View -->
+            <div id="slotsView" style="display: none;">
+                <div class="glass" style="padding: 20px; text-align: left;">
+                    <h3 style="margin-bottom: 10px; color: var(--gold);">Global Slot Availability</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">
+                        Use these toggles to completely remove a specific time block from the public website. Turning off a slot will prevent any further bookings for that time on ANY day.
+                    </p>
+                    <div id="adminSlotsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                        <!-- Slots populated here -->
+                    </div>
+                </div>
+            </div> <!-- End Slots View -->
+            
+    </div>
+    </div>
+
+    <script>
+        console.log("Admin Dashboard Script Initializing...");
+        
+        // Environment Check
+        if (window.location.protocol === 'file:') {
+            alert("⚠️ WARNING: You are opening this file directly from your folder (file://). \n\nFetch requests to the login API will likely be blocked by your browser's security settings.\n\nPlease open the dashboard at: http://localhost:3000/admin.html");
+        }
+
+        let lastKnownBookingId = null;
+        window.currentFilterDate = null; // Global filter state
+        let notificationSound;
+        try {
+            notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        } catch (e) {
+            console.warn("Audio initialization failed:", e);
+        }
+
+        const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
+            ? 'http://localhost:3000'
+            : '';
+        
+        console.log("API_BASE set to:", API_BASE || "(relative)");
+
+        function getAuthToken() {
+            return sessionStorage.getItem('adminToken');
+        }
+
+        async function handleLogin() {
+            console.log("Login button clicked");
+            const userEl = document.getElementById('adminUsername');
+            const passEl = document.getElementById('adminPassword');
+            
+            if (!userEl || !passEl) {
+                console.error("Critical UI elements missing!");
+                return;
+            }
+
+            const username = userEl.value;
+            const password = passEl.value;
+            const errorEl = document.getElementById('loginError');
+            const btn = document.querySelector('.login-box .btn-premium');
+            
+            console.log("Attempting login for:", username);
+
+            const originalBtnText = btn.innerText;
+            btn.innerText = "Authenticating...";
+            btn.disabled = true;
+            errorEl.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionStorage.setItem('adminToken', data.token);
+                    document.body.classList.add('authenticated');
+                    fetchBookings();
+                } else {
+                    const errData = await response.json().catch(() => ({}));
+                    errorEl.innerText = errData.error || "Invalid credentials. Please try again.";
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server connection failed. Make sure the backend is running at " + (API_BASE || window.location.origin));
+            } finally {
+                btn.innerText = originalBtnText;
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminToken');
+            window.location.reload();
+        }
+
+        function triggerAlert(booking) {
+            if (notificationSound) {
+                notificationSound.play().catch(e => console.log("Sound blocked by browser"));
+            }
+            
+            // Show Visual Toast
+            const toast = document.getElementById('bookingToast');
+            document.getElementById('toastMessage').innerText = `${booking.name} just booked ${booking.services}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.transform = 'translateX(0)', 10);
+
+            // Browser Notification
+            if (Notification.permission === "granted") {
+                new Notification("New Booking Received! 💇", {
+                    body: `${booking.name} wants ${booking.services}`,
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('bookingToast');
+            toast.style.transform = 'translateX(120%)';
+            setTimeout(() => toast.style.display = 'none', 500);
+            window.currentFilterDate = null; // Reset filter so they see the new booking
+            fetchBookings();
+        }
+
+        // Auto-login check
+        if (getAuthToken()) {
+            document.body.classList.add('authenticated');
+        }
+
+        // Request notification permissions
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        async function fetchBookings() {
+            if (!document.body.classList.contains('authenticated')) return;
+            const token = getAuthToken();
+            if (!token) return logout();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/bookings`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    console.warn("Session expired or invalid.");
+                    return logout();
+                }
+
+                const allBookings = await response.json();
+                window.cachedBookings = allBookings; // Store globally for filtering
+                
+                // --- NEW GLOBAL NOTIFICATION CHECK ---
+                if (allBookings.length > 0) {
+                    const latestByCreation = [...allBookings].sort((a, b) => (b.id || 0) - (a.id || 0))[0];
+                    if (lastKnownBookingId !== null && latestByCreation.id > lastKnownBookingId) {
+                        triggerAlert(latestByCreation);
+                    }
+                    lastKnownBookingId = latestByCreation.id;
+                }
+                // ------------------------------------
+
+                const selectedMonth = document.getElementById('monthFilter').value;
+                const monthBookings = allBookings.filter(b => b.date && b.date.startsWith(selectedMonth));
+                
+                if (window.currentFilterDate) {
+                    const dayBookings = allBookings.filter(b => b.date === window.currentFilterDate);
+                    renderBookingsList(dayBookings);
+                } else {
+                    renderBookingsList(monthBookings);
+                }
+                renderCalendar(monthBookings);
+            } catch (error) {
+                console.error('Failed to fetch:', error);
+            }
+        }
+
+        function renderBookingsList(bookings) {
+            const list = document.getElementById('bookingsList');
+            list.innerHTML = '';
+
+            const total = bookings.length;
+            const confirmed = bookings.filter(b => b.status === 'Confirmed').length;
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statConfirmed').innerText = confirmed;
+            document.getElementById('statRate').innerText = total > 0 ? Math.round((confirmed / total) * 100) + "%" : "0%";
+
+            bookings.sort((a, b) => new Date(`${a.date} ${a.time}`) - new Date(`${b.date} ${b.time}`));
+
+            if (bookings.length === 0) {
+                list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">No requests for this view.</td></tr>';
+                return;
+            }
+
+            bookings.forEach(booking => {
+                const statusClass = `status-${(booking.status || 'pending').toLowerCase()}`;
+                const siteBase = window.location.origin;
+                const cancelLink = `${siteBase}/cancel.html?id=${booking.id}`;
+                
+                // Generate Google Calendar Link
+                const [year, month, day] = booking.date.split('-');
+                let [timePart, modifier] = booking.time.split(' ');
+                let [hours, minutes] = timePart.split(':');
+                hours = parseInt(hours);
+                if (modifier === 'PM' && hours < 12) hours += 12;
+                if (modifier === 'AM' && hours === 12) hours = 0;
+                
+                const startDate = new Date(year, month - 1, day, hours, minutes);
+                const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+                
+                const formatGCalDate = (date) => {
+                    return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                };
+                
+                const gcalLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Salon de PET-LEEN Appointment')}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${encodeURIComponent('Services: ' + booking.services + '\n\nCancel your booking: ' + cancelLink)}&location=${encodeURIComponent('Aquem - Baixo, Margao, Goa 403601')}`;
+
+                const confirmedWaMsg = `Hello ${booking.name}! ✅ Your appointment at Salon de PET-LEEN for ${booking.services} on ${booking.date} at ${booking.time} is CONFIRMED. See you soon! 💇\n\nAdd to your Calendar: ${gcalLink}\n\nNeed to cancel? Click here: ${cancelLink}`;
+
+                const whatsAppLink = `https://wa.me/${(booking.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                    booking.status === 'Confirmed'
+                        ? confirmedWaMsg
+                        : `Hello ${booking.name}, we've received your request for ${booking.services} on ${booking.date}. We'll update you shortly! 💇 — Salon de PET-LEEN`
+                )}`;
+                
+                const confirmedWaLink = `https://wa.me/${(booking.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(confirmedWaMsg)}`;
+                list.innerHTML += `
+                    <tr>
+                        <td>
+                            <div style="color: var(--gold); font-weight: bold;">${booking.date || '—'}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${booking.time || '—'}</div>
+                        </td>
+                        <td><strong>${booking.name || 'Unknown'}</strong></td>
+                        <td><a href="tel:${booking.phone}" style="color: var(--text-muted);">${booking.phone || '—'}</a></td>
+                        <td style="max-width: 250px; font-size: 0.85rem;">${booking.services || '—'}</td>
+                        <td>
+                            <span class="status-pill ${statusClass}">${booking.status || 'Pending'}</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="action-btn btn-status-update" data-id="${booking.id}" data-status="Confirmed" data-wa="${confirmedWaLink}" title="Confirm">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="action-btn btn-status-update" data-id="${booking.id}" data-status="Cancelled" style="border-color: #ff0000; color: #ff0000;" title="Cancel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <a href="${whatsAppLink}" target="_blank" class="action-btn" style="border-color: #25d366; color: #25d366;" title="Send WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function switchView(view) {
+            document.getElementById('listView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('applicationsView').style.display = 'none';
+            document.getElementById('slotsView').style.display = 'none';
+            
+            document.getElementById('monthFilterContainer').style.display = (view === 'applications' || view === 'slots') ? 'none' : 'flex';
+
+            if (view === 'bookings') {
+                document.getElementById('listView').style.display = 'block';
+            } else if (view === 'calendar') {
+                document.getElementById('calendarView').style.display = 'block';
+            } else if (view === 'applications') {
+                document.getElementById('applicationsView').style.display = 'block';
+                fetchApplications();
+            } else if (view === 'slots') {
+                document.getElementById('slotsView').style.display = 'block';
+                fetchAdminSlots();
+            }
+
+            if (view !== 'bookings') {
+                window.currentFilterDate = null; // Clear filter when leaving bookings view
+            }
+
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        function renderCalendar(bookings) {
+            const calendarBody = document.getElementById('calendarBody');
+            const selectedMonthVal = document.getElementById('monthFilter').value; // "YYYY-MM"
+            const [year, month] = selectedMonthVal.split('-').map(Number);
+            
+            calendarBody.innerHTML = '';
+
+            const firstDay = new Date(year, month - 1, 1).getDay();
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const today = new Date().toISOString().split('T')[0];
+
+            // Empty cells for first week
+            for (let i = 0; i < firstDay; i++) {
+                calendarBody.innerHTML += `<div class="calendar-day other-month"></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateStr === today;
+                
+                const dayBookings = bookings.filter(b => b.date === dateStr);
+                const dots = dayBookings.map(b => 
+                    `<div class="dot ${b.status === 'Confirmed' ? 'dot-confirmed' : 'dot-pending'}" title="${b.name}: ${b.services}"></div>`
+                ).join('');
+
+                calendarBody.innerHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} calendar-day-btn" data-date="${dateStr}">
+                        <div class="calendar-day-num">${day}</div>
+                        <div class="booking-dots">${dots}</div>
+                        ${dayBookings.length > 0 ? `<div style="font-size: 0.65rem; margin-top: 5px; color: var(--text-muted);">${dayBookings.length} bookings</div>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        function filterByDay(date) {
+            window.currentFilterDate = date; 
+            if (!window.cachedBookings) return;
+            const dayBookings = window.cachedBookings.filter(b => b.date === date);
+            switchView('bookings');
+            renderBookingsList(dayBookings);
+            console.log("Filtered by day:", date, dayBookings.length);
+        }
+
+        // Event Delegation for Action Buttons
+        document.getElementById('bookingsList').addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-status-update');
+            if (!btn) return;
+            
+            const id = btn.getAttribute('data-id');
+            const status = btn.getAttribute('data-status');
+            const waLink = btn.getAttribute('data-wa');
+            updateStatus(id, status, waLink);
+        });
+
+        async function updateStatus(id, status, waLink) {
+            const token = getAuthToken();
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/bookings/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                if (response.status === 401 || response.status === 403) return logout();
+                fetchBookings();
+                
+                if (response.ok && status === 'Confirmed' && waLink) {
+                    window.open(waLink, '_blank');
+                }
+            } catch (e) {
+                alert("Failed to update status.");
+            }
+        }
+
+        async function fetchApplications() {
+            if (!document.body.classList.contains('authenticated')) return;
+            const token = getAuthToken();
+            if (!token) return logout();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/applications`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    return logout();
+                }
+
+                const applications = await response.json();
+                const list = document.getElementById('applicationsList');
+                list.innerHTML = '';
+
+                if (applications.length === 0) {
+                    list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">No applications received yet.</td></tr>';
+                    return;
+                }
+
+                applications.forEach(app => {
+                    const statusClass = `status-${(app.status || 'pending').toLowerCase()}`;
+                    const resumeFilename = app.resume_path.split(/[\\/]/).pop();
+                    const resumeUrl = `${API_BASE}/uploads/resumes/${resumeFilename}`;
+
+                    list.innerHTML += `
+                        <tr>
+                            <td>
+                                <div style="color: var(--gold); font-weight: bold;">${new Date(app.created_at).toLocaleDateString()}</div>
+                            </td>
+                            <td><strong>${app.name}</strong></td>
+                            <td>
+                                <div style="font-size: 0.8rem; margin-bottom: 3px;"><a href="mailto:${app.email}" style="color: white;">${app.email}</a></div>
+                                <div style="font-size: 0.8rem;"><a href="tel:${app.number}" style="color: var(--text-muted);">${app.number}</a></div>
+                            </td>
+                            <td>${app.position_type}</td>
+                            <td><span class="status-pill ${statusClass}">${app.status}</span></td>
+                            <td>
+                                <div style="display: flex; gap: 5px;">
+                                    <a href="${resumeUrl}" target="_blank" class="action-btn" title="View Resume">
+                                        <i class="fas fa-file-pdf"></i> Download Resume
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Failed to fetch applications:', error);
+            }
+        }
+
+        setInterval(fetchBookings, 10000);
+
+        // Global Event Listeners initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMonths();
+            if (getAuthToken()) fetchBookings();
+            
+            // Login
+            document.getElementById('loginBtn')?.addEventListener('click', handleLogin);
+
+            // Logout
+            document.getElementById('logoutLink')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+
+            // View Switching
+            document.getElementById('viewBtnBookingsList')?.addEventListener('click', function() {
+                this.classList.add('active');
+                switchView('bookings');
+            });
+            document.getElementById('viewBtnCalendar')?.addEventListener('click', function() {
+                this.classList.add('active');
+                switchView('calendar');
+            });
+            document.getElementById('viewBtnApplications')?.addEventListener('click', function() {
+                this.classList.add('active');
+                switchView('applications');
+            });
+            document.getElementById('viewBtnSlots')?.addEventListener('click', function() {
+                this.classList.add('active');
+                switchView('slots');
+            });
+
+            // Month Filter
+            document.getElementById('monthFilter')?.addEventListener('change', () => {
+                window.currentFilterDate = null; // Clear day filter on month change
+                fetchBookings();
+            });
+
+            // Calendar Day Clicks (Delegation)
+            document.getElementById('calendarBody')?.addEventListener('click', (e) => {
+                const dayEl = e.target.closest('.calendar-day-btn');
+                if (dayEl) {
+                    const date = dayEl.getAttribute('data-date');
+                    if (date) filterByDay(date);
+                }
+            });
+
+            // Manual Booking Modal Logic
+            const mbOverlay = document.getElementById('manualBookingOverlay');
+            document.getElementById('btnOpenManualBooking')?.addEventListener('click', () => {
+                mbOverlay.style.display = 'flex';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('mbDate').min = today; 
+                document.getElementById('mbDate').value = today;
+                loadManualSlots();
+            });
+
+            document.getElementById('closeManualBooking')?.addEventListener('click', () => {
+                mbOverlay.style.display = 'none';
+            });
+
+            document.getElementById('mbDate')?.addEventListener('change', loadManualSlots);
+
+            document.getElementById('manualBookingForm')?.addEventListener('submit', handleManualBooking);
+        });
+
+        async function loadManualSlots() {
+            const timeSelect = document.getElementById('mbTime');
+            timeSelect.innerHTML = '<option value="" disabled selected>Loading slots...</option>';
+            try {
+                const res = await fetch(`${API_BASE}/api/slots`);
+                if (!res.ok) throw new Error();
+                const slots = await res.json();
+                timeSelect.innerHTML = '<option value="" disabled selected>Select a time...</option>';
+                slots.forEach(s => {
+                    const disabled = (s.status === 'Busy' || s.count <= 0) ? 'disabled' : '';
+                    let label = `${s.time} (${s.count} left)`;
+                    if (disabled) label = `${s.time} (Fully Booked)`;
+                    timeSelect.innerHTML += `<option value="${s.time}" ${disabled}>${label}</option>`;
+                });
+            } catch (e) {
+                timeSelect.innerHTML = '<option value="" disabled>Failed to load slots</option>';
+            }
+        }
+
+        async function handleManualBooking(e) {
+            e.preventDefault();
+            const token = getAuthToken();
+            if (!token) return logout();
+
+            const btn = document.getElementById('mbSubmitBtn');
+            btn.disabled = true;
+            btn.innerText = 'Confirming...';
+
+            const formData = {
+                name: document.getElementById('mbName').value,
+                phone: document.getElementById('mbPhone').value,
+                services: document.getElementById('mbServices').value,
+                date: document.getElementById('mbDate').value,
+                time: document.getElementById('mbTime').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/book`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Manual Booking successfully added and confirmed!');
+                    document.getElementById('manualBookingOverlay').style.display = 'none';
+                    e.target.reset();
+                    fetchBookings(); 
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'Failed to book slot.'));
+                }
+            } catch (err) {
+                alert('Connection to server failed.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Confirm Manual Booking';
+            }
+        }
+
+        async function fetchAdminSlots() {
+            try {
+                const res = await fetch(`${API_BASE}/api/slots`);
+                if (!res.ok) throw new Error();
+                const slots = await res.json();
+                
+                // Store globally so we can send the whole array back on update
+                window.globalSlotsData = slots;
+
+                const list = document.getElementById('adminSlotsList');
+                list.innerHTML = slots.map((s, index) => {
+                    const isAvailable = s.status !== 'Busy';
+                    const color = isAvailable ? '#00ff00' : '#ff4d4d';
+                    
+                    return `
+                        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="font-size: 1.1rem;">${s.time}</strong>
+                                <span style="font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.5); color: ${color};">${isAvailable ? 'Active' : 'Disabled'}</span>
+                            </div>
+                            <button class="btn-premium" style="font-size: 0.8rem; padding: 8px; background: ${isAvailable ? 'rgba(255,77,77,0.1)' : 'rgba(0,255,0,0.1)'}; color: ${isAvailable ? '#ff4d4d' : '#00ff00'}; border-color: ${isAvailable ? '#ff4d4d' : '#00ff00'};" onclick="toggleAdminSlot(${index})">
+                                ${isAvailable ? 'Disable Slot' : 'Enable Slot'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("Failed to load admin slots", e);
+            }
+        }
+
+        async function toggleAdminSlot(index) {
+            if(!window.globalSlotsData) return;
+            const token = getAuthToken();
+            if (!token) return logout();
+
+            const slot = window.globalSlotsData[index];
+            const isAvailable = slot.status !== 'Busy';
+
+            // Toggle
+            if (isAvailable) {
+                slot.status = 'Busy';
+                slot.count = 0;
+            } else {
+                slot.status = 'Available';
+                slot.count = 1; // Default fallback to 1 available count
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/slots`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ slots: window.globalSlotsData })
+                });
+
+                if (response.ok) {
+                    fetchAdminSlots(); // re-render
+                } else {
+                    alert('Failed to update slot.');
+                }
+            } catch (error) {
+                alert('Connection error.');
+            }
+        }
+
+        // Populate Month Filter function remains same...
+        function populateMonths() {
+            const select = document.getElementById('monthFilter');
+            if (!select) return;
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+
+            for (let i = 0; i < 12; i++) {
+                let month = (currentMonth + i) % 12;
+                let year = currentYear + Math.floor((currentMonth + i) / 12);
+                let val = `${year}-${String(month + 1).padStart(2, '0')}`;
+                let name = months[month] + " " + year;
+                let selected = i === 0 ? 'selected' : '';
+                select.innerHTML += `<option value="${val}" ${selected}>${name}</option>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

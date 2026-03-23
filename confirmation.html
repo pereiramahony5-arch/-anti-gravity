@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Received | Salon de PET-LEEN</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at top, #1a0000 0%, #000 60%);
+            padding: 40px 20px;
+        }
+
+        .confirm-wrapper {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Animated checkmark */
+        .checkmark-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b0000, #cc0000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.5);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .checkmark-circle i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .confirm-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #c9a96e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeUp 0.8s ease 0.3s both;
+        }
+
+        .confirm-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 1rem;
+            animation: fadeUp 0.8s ease 0.4s both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .booking-summary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(139, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: left;
+            margin-bottom: 30px;
+            animation: fadeUp 0.8s ease 0.5s both;
+        }
+
+        .summary-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(139, 0, 0, 0.3);
+        }
+
+        .summary-row {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(139, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .status-badge-confirm {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            color: #ffa500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .steps-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            animation: fadeUp 0.8s ease 0.6s both;
+        }
+
+        .step-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        .step-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeUp 0.8s ease 0.7s both;
+        }
+
+        .btn-outline {
+            padding: 14px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: white;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        @media (max-width: 500px) {
+            .confirm-title {
+                font-size: 2rem;
+            }
+
+            .steps-box {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="confirm-wrapper">
+
+        <div class="checkmark-circle">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h1 class="confirm-title">You're Booked In!</h1>
+        <p class="confirm-subtitle">Your request has been sent to Salon de PET-LEEN.<br>We'll confirm your appointment
+            shortly.</p>
+
+        <!-- Booking Summary Card -->
+        <div class="booking-summary">
+            <div class="summary-title"><i class="fas fa-receipt"></i> Booking Summary</div>
+
+            <div class="summary-row">
+                <div class="summary-icon"><i class="fas fa-user"></i></div>
+                <div>
+                    <div class="summary-label">Name</div>
+                    <div class="summary-value" id="sum-name">—</div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <div class="summary-icon"><i class="fas fa-calendar"></i></div>
+                <div>
+                    <div class="summary-label">Date</div>
+                    <div class="summary-value" id="sum-date">—</div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <div class="summary-icon"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="summary-label">Time</div>
+                    <div class="summary-value" id="sum-time">—</div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <div class="summary-icon"><i class="fas fa-scissors"></i></div>
+                <div>
+                    <div class="summary-label">Services</div>
+                    <div class="summary-value" id="sum-services">—</div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <div class="summary-icon"><i class="fas fa-phone"></i></div>
+                <div>
+                    <div class="summary-label">Contact Number</div>
+                    <div class="summary-value" id="sum-phone">—</div>
+                </div>
+            </div>
+
+            <div class="summary-row">
+                <div class="summary-icon"><i class="fas fa-info-circle"></i></div>
+                <div>
+                    <div class="summary-label">Status</div>
+                    <div class="summary-value">
+                        <span class="status-badge-confirm">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Pending Confirmation
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What Happens Next -->
+        <div class="steps-box">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-text">We review your request within a few hours</div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-text">You'll receive a WhatsApp confirmation from us</div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-text">Show up & enjoy your luxury experience ✨</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a id="whatsapp-notify-btn" href="#" target="_blank" class="btn-premium" style="background: #25d366; border-color: #25d366; width: 100%; margin-bottom: 10px; display: none;">
+                <i class="fab fa-whatsapp"></i> Notify Salon on WhatsApp
+            </a>
+            <a href="index.html" class="btn-premium">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a href="booking.html" class="btn-outline">
+                <i class="fas fa-plus"></i> Book Another
+            </a>
+        </div>
+
+        <p id="cancel-link-area" style="margin-top: 25px; font-size: 0.8rem; color: var(--text-muted);"></p>
+
+    </div>
+
+    <script>
+        // Load booking data saved by booking.html
+        const booking = JSON.parse(sessionStorage.getItem('lastBooking') || '{}');
+
+        if (booking.name) {
+            document.getElementById('sum-name').innerText = booking.name;
+            document.getElementById('sum-phone').innerText = booking.phone;
+            document.getElementById('sum-services').innerText = booking.services;
+            document.getElementById('sum-time').innerText = booking.time;
+
+            // Format date nicely
+            if (booking.date) {
+                const d = new Date(booking.date + 'T00:00:00');
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('sum-date').innerText = d.toLocaleDateString('en-US', options);
+            }
+
+            // Show cancel link if we have an ID
+            if (booking.id) {
+                const cancelUrl = `cancel.html?id=${booking.id}`;
+                
+                // Generate Google Calendar Link
+                const [year, month, day] = booking.date.split('-');
+                let [timePart, modifier] = booking.time.split(' ');
+                let [hours, minutes] = timePart.split(':');
+                hours = parseInt(hours);
+                if (modifier === 'PM' && hours < 12) hours += 12;
+                if (modifier === 'AM' && hours === 12) hours = 0;
+                
+                const startDate = new Date(year, month - 1, day, hours, minutes);
+                // Assume 1 hour duration
+                const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+                
+                const formatGCalDate = (date) => {
+                    return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                };
+                
+                const siteBase = window.location.origin;
+                const fullCancelLink = `${siteBase}/${cancelUrl}`;
+                const gcalLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Salon de PET-LEEN Appointment')}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${encodeURIComponent('Services: ' + booking.services + '\n\nCancel your booking: ' + fullCancelLink)}&location=${encodeURIComponent('Aquem - Baixo, Margao, Goa 403601')}`;
+
+                document.getElementById('cancel-link-area').innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <a href="${gcalLink}" target="_blank" class="btn-outline" style="font-size: 0.8rem; padding: 10px 20px;">
+                            <i class="far fa-calendar-alt"></i> Set a Reminder on Calendar
+                        </a>
+                    </div>
+                    <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Need to cancel?</p>
+                        <a href="${cancelUrl}" class="btn-outline" style="border-color: rgba(255, 0, 0, 0.4); color: #ff6666; font-size: 0.8rem; padding: 10px 20px;">
+                            <i class="fas fa-times-circle"></i> Cancel Appointment
+                        </a>
+                        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 15px;">Save this link — you'll need it if plans change.</p>
+                    </div>
+                `;
+
+                // WhatsApp Notification Link for Admin
+                const salonPhone = "918378905114";
+                const waMsg = `Hello Salon de PET-LEEN! 👋 I just made a booking on your website:\n\n👤 *Name:* ${booking.name}\n📅 *Date:* ${document.getElementById('sum-date').innerText}\n⏰ *Time:* ${booking.time}\n💇 *Services:* ${booking.services}\n📱 *Phone:* ${booking.phone}\n\nCan you please confirm this for me?`;
+                const waBtn = document.getElementById('whatsapp-notify-btn');
+                waBtn.href = `https://wa.me/${salonPhone}?text=${encodeURIComponent(waMsg)}`;
+                waBtn.style.display = 'block';
+            }
+        } else {
+            // If accessed directly without booking data
+            document.querySelector('.booking-summary').innerHTML = `
+                <p style="text-align:center; color: var(--text-muted); padding: 20px;">
+                    No booking data found. <a href="booking.html" style="color: var(--primary);">Make a booking here.</a>
+                </p>
+            `;
+        }
+    </script>
+</body>
+
+</html>
