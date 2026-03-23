@@ -210,9 +210,9 @@
 
             const formData = new FormData(this);
 
-            const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
+            const API_BASE = window.location.origin.includes('localhost')
                 ? 'http://localhost:3000'
-                : '';
+                : 'https://anti-gravity-0htf.onrender.com';
 
             try {
                 const response = await fetch(`${API_BASE}/api/career`, {

@@ -317,13 +317,13 @@
     <script>
         // Slots Data Management
         let slots = [];
-            const API_BASE = window.location.origin.includes('localhost')
-                ? 'http://localhost:3000'
-                : 'https://anti-gravity-0htf.onrender.com';
+        const API_BASE = window.location.origin.includes('localhost')
+            ? 'http://localhost:3000'
+            : 'https://anti-gravity-0htf.onrender.com';
 
         async function loadSlots() {
             try {
-                const response = await fetch(`${API_BASE_SLOTS}/api/slots`);
+                const response = await fetch(`${API_BASE}/api/slots`);
                 slots = await response.json();
                 renderSlots();
             } catch (e) {
@@ -461,9 +461,7 @@
                 message: document.getElementById('message').value
             };
 
-            const API_BASE = window.location.origin === 'null' || window.location.protocol === 'file:'
-                ? 'http://localhost:3000'
-                : '';
+            // API_BASE is already defined globally at the top of the script
 
             console.log("Attempting to send booking to:", `${API_BASE}/api/book`);
 
