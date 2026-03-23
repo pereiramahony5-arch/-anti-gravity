@@ -440,9 +440,7 @@
         console.log("Admin Dashboard Script Initializing...");
         
         // Environment Check
-        if (window.location.protocol === 'file:') {
-            alert("⚠️ WARNING: You are opening this file directly from your folder (file://). \n\nFetch requests to the login API will likely be blocked by your browser's security settings.\n\nPlease open the dashboard at: http://localhost:3000/admin.html");
-        }
+            alert("⚠️ WARNING: You are opening this file directly from your folder (file://). \n\nFetch requests to the login API will likely be blocked by your browser's security settings.\n\nPlease open the dashboard at: /admin.html");
 
         let lastKnownBookingId = null;
         window.currentFilterDate = null; // Global filter state
